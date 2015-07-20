@@ -10,7 +10,7 @@ namespace WhatsAppApi
     public class WhatsEventBase : ApiBase
     {
         //events
-        public event ExceptionDelegate OnDisconnect;
+        public event Action<Exception> OnDisconnect;
         protected void fireOnDisconnect(Exception ex)
         {
             if (this.OnDisconnect != null)
@@ -19,7 +19,7 @@ namespace WhatsAppApi
             }
         }
         
-        public event NullDelegate OnConnectSuccess;
+        public event Action OnConnectSuccess;
         protected void fireOnConnectSuccess() 
         {
             if (this.OnConnectSuccess != null)
@@ -28,7 +28,7 @@ namespace WhatsAppApi
             }
         }
         
-        public event ExceptionDelegate OnConnectFailed;
+        public event Action<Exception> OnConnectFailed;
         protected void fireOnConnectFailed(Exception ex) 
         {
             if (this.OnConnectFailed != null)
@@ -46,7 +46,7 @@ namespace WhatsAppApi
             }
         }
 
-        public event StringDelegate OnLoginFailed;
+        public event Action<string> OnLoginFailed;
         protected void fireOnLoginFailed(string data) 
         {
             if (this.OnLoginFailed != null)
@@ -301,10 +301,7 @@ namespace WhatsAppApi
 
         //event delegates
         public delegate void OnContactNameDelegate(string from, string contactName);
-        public delegate void NullDelegate();
-        public delegate void ExceptionDelegate(Exception ex);
         public delegate void LoginSuccessDelegate(string phoneNumber, byte[] data);
-        public delegate void StringDelegate(string data);
         public delegate void OnErrorDelegate(string id, string from, int code, string text);
         public delegate void OnGetMessageReceivedDelegate(string from, string participant, string id);
         public delegate void OnNotificationPictureDelegate(string type, string jid, string id);

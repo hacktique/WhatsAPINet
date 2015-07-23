@@ -25,9 +25,9 @@ namespace WhatsTest
             System.Console.OutputEncoding = Encoding.Default;
             System.Console.InputEncoding = Encoding.Default;
             string nickname = "WhatsApiNet";
-            string sender = "316******3"; // Mobile number with country code (but without + or 00)
-            string password = "xLl***************GSA=";//v2 password
-            string target = "316********6";// Mobile number to send the message to
+            string sender = "31631303159"; // Mobile number with country code (but without + or 00)
+            string password = "Eoom/2ig8drSv2S2EKlzV/h0R20=";//v2 password
+            string target = "31683973700";// Mobile number to send the message to
 
             WhatsApp wa = new WhatsApp(sender, password, nickname, true);
 
@@ -191,12 +191,12 @@ namespace WhatsTest
             Console.WriteLine("{0} last seen on {1}", from, lastSeen.ToString());
         }
 
-        static void wa_OnGetMessageReceivedServer(string from, string id)
+        static void wa_OnGetMessageReceivedServer(string from, string participant, string id)
         {
             Console.WriteLine("Message {0} to {1} received by server", id, from);
         }
 
-        static void wa_OnGetMessageReceivedClient(string from, string id)
+        static void wa_OnGetMessageReceivedClient(string from, string participant, string id)
         {
             Console.WriteLine("Message {0} to {1} received by client", id, from);
         }

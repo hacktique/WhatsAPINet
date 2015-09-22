@@ -257,109 +257,16 @@ namespace WhatsAppApi
             }, media);
             this.uploadResponse = null;
             this.SendNode(node);
-            int i = 0;
-            
-            while (this.uploadResponse == null && i <= 20)
-            {
-                Thread.Sleep(100);
-                i++;
-                //this.pollMessage();
+
+            Thread.Sleep(100);
+            this.pollMessage();
+            WaUploadResponse res = null;
+            try {
+                res = new WaUploadResponse(this.uploadResponse);
             }
-            if (this.uploadResponse != null && this.uploadResponse.GetChild("duplicate") != null)
-            {
-                WaUploadResponse res = new WaUploadResponse(this.uploadResponse);
-                this.uploadResponse = null;
-                return res;
-            }
-            else
-            {
-                try
-                {
-                    string uploadUrl = this.uploadResponse.GetChild("media").GetAttribute("url");
-                    this.uploadResponse = null;
-
-                    Uri uri = new Uri(uploadUrl);
-
-                    string hashname = string.Empty;
-                    byte[] buff = MD5.Create().ComputeHash(System.Text.Encoding.Default.GetBytes(b64hash));
-                    StringBuilder sb = new StringBuilder();
-                    foreach (byte b in buff)
-                    {
-                        sb.Append(b.ToString("X2"));
-                    }
-                    hashname = String.Format("{0}.{1}", sb.ToString(), extension);
-
-                    string boundary = "zzXXzzYYzzXXzzQQ";
-
-                    sb = new StringBuilder();
-
-                    sb.AppendFormat("--{0}\r\n", boundary);
-                    sb.Append("Content-Disposition: form-data; name=\"to\"\r\n\r\n");
-                    sb.AppendFormat("{0}\r\n", to);
-                    sb.AppendFormat("--{0}\r\n", boundary);
-                    sb.Append("Content-Disposition: form-data; name=\"from\"\r\n\r\n");
-                    sb.AppendFormat("{0}\r\n", this.phoneNumber);
-                    sb.AppendFormat("--{0}\r\n", boundary);
-                    sb.AppendFormat("Content-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\n", hashname);
-                    sb.AppendFormat("Content-Type: {0}\r\n\r\n", contenttype);
-                    string header = sb.ToString();
-
-                    sb = new StringBuilder();
-                    sb.AppendFormat("\r\n--{0}--\r\n", boundary);
-                    string footer = sb.ToString();
-
-                    long clength = size + header.Length + footer.Length;
-
-                    sb = new StringBuilder();
-                    sb.AppendFormat("POST {0}\r\n", uploadUrl);
-                    sb.AppendFormat("Content-Type: multipart/form-data; boundary={0}\r\n", boundary);
-                    sb.AppendFormat("Host: {0}\r\n", uri.Host);
-                    sb.AppendFormat("User-Agent: {0}\r\n", WhatsConstants.UserAgent);
-                    sb.AppendFormat("Content-Length: {0}\r\n\r\n", clength);
-                    string post = sb.ToString();
-
-                    TcpClient tc = new TcpClient(uri.Host, 443);
-                    SslStream ssl = new SslStream(tc.GetStream());
-                    try
-                    {
-                        ssl.AuthenticateAsClient(uri.Host);
-                    }
-                    catch (Exception e)
-                    {
-                        throw e;
-                    }
-
-                    List<byte> buf = new List<byte>();
-                    buf.AddRange(Encoding.UTF8.GetBytes(post));
-                    buf.AddRange(Encoding.UTF8.GetBytes(header));
-                    buf.AddRange(fileData);
-                    buf.AddRange(Encoding.UTF8.GetBytes(footer));
-
-                    ssl.Write(buf.ToArray(), 0, buf.ToArray().Length);
-
-                    //moment of truth...
-                    buff = new byte[1024];
-                    ssl.Read(buff, 0, 1024);
-
-                    string result = Encoding.UTF8.GetString(buff);
-                    foreach (string line in result.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (line.StartsWith("{"))
-                        {
-                            string fooo = line.TrimEnd(new char[] { (char)0 });
-                            JavaScriptSerializer jss = new JavaScriptSerializer();
-                            WaUploadResponse resp = jss.Deserialize<WaUploadResponse>(fooo);
-                            if (!String.IsNullOrEmpty(resp.url))
-                            {
-                                return resp;
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                { }
-            }
-            return null;
+            catch (Exception) {}
+            this.uploadResponse = null;
+            return res;
         }
 
         protected void SendQrSync(byte[] qrkey, byte[] token = null)

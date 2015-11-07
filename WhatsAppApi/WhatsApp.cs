@@ -257,14 +257,10 @@ namespace WhatsAppApi
             }, media);
             this.uploadResponse = null;
             this.SendNode(node);
-            int i = 0;
+
+            Thread.Sleep(100);
+            this.pollMessage();
             
-            while (this.uploadResponse == null && i <= 20)
-            {
-                Thread.Sleep(100);
-                i++;
-                //this.pollMessage();
-            }
             if (this.uploadResponse != null && this.uploadResponse.GetChild("duplicate") != null)
             {
                 WaUploadResponse res = new WaUploadResponse(this.uploadResponse);
